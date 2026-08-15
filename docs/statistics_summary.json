@@ -1,0 +1,43 @@
+{
+  "media_records": 1421,
+  "people_records": 494,
+  "unique_media_domains": 1421,
+  "media_with_wikipedia_link": 1387,
+  "media_with_wikipedia_text": 0,
+  "bias_label_5_class": {
+    "left": 93,
+    "leftcenter": 22,
+    "center": 435,
+    "rightcenter": 550,
+    "right": 321
+  },
+  "factual_reporting": {
+    "MIXED": 587,
+    "HIGH": 565,
+    "LOW": 118,
+    "VERY LOW": 86,
+    "MOSTLY FACTUAL": 49,
+    "Unknown": 9,
+    "VERY HIGH": 7
+  },
+  "credibility_rating": {
+    "LOW CREDIBILITY": 688,
+    "HIGH CREDIBILITY": 560,
+    "Unknown": 97,
+    "MEDIUM CREDIBILITY": 76
+  },
+  "top_occupations": {
+    "Unknown": 236,
+    "Journalist": 90,
+    "Politician": 51,
+    "Writer": 27,
+    "author": 22,
+    "lawyer": 18,
+    "businessman": 8,
+    "economist": 7,
+    "activist": 7,
+    "military": 4,
+    "producer": 3,
+    "art director": 3
+  }
+}

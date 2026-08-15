@@ -1,16 +1,17 @@
 import json
+from collections import Counter
+from pathlib import Path
+
 import pandas as pd
 
-res = {}
+ROOT = Path(__file__).resolve().parents[1]
+INPUT_FILE = ROOT / "data" / "people" / "occupations.json"
+OUTPUT_FILE = ROOT / "data" / "people" / "statistics" / "stat_.xlsx"
 
-with open("occupations.json", "r", encoding="utf-8") as f:
-    datas = json.load(f)
-    for data in datas:
-        label = data["occupations"]
-        if label not in res:
-            res[label] = 1
-        else:
-            res[label] += 1
-df = pd.DataFrame.from_dict(res, orient="index", columns=["Count"])
+with INPUT_FILE.open("r", encoding="utf-8") as f:
+    data = json.load(f)
 
-df.to_excel("stat_.xlsx", index_label="Occupations")
+counts = Counter(item.get("occupations") or "Unknown" for item in data)
+df = pd.DataFrame.from_dict(counts, orient="index", columns=["Count"]).sort_values("Count", ascending=False)
+OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+df.to_excel(OUTPUT_FILE, index_label="Occupations")

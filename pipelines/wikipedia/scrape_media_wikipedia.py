@@ -1,48 +1,49 @@
 import json
+from pathlib import Path
+
 import requests
 from bs4 import BeautifulSoup
 
-file_in = "merge_res.json"
+ROOT = Path(__file__).resolve().parents[2]
+INPUT_FILE = ROOT / "data" / "media" / "merge_res.json"
+OUTPUT_FILE = ROOT / "data" / "media" / "data_.json"
+LOG_FILE = ROOT / "logs" / "wiki_scrape.log"
 
-with open(file_in, "r", encoding="utf-8") as f:
+with INPUT_FILE.open("r", encoding="utf-8") as f:
     datas = json.load(f)
 
 names = []
-
-wiki = "https://en.wikipedia.org/wiki/"
 count = 0
 for data in datas:
     count += 1
-    len_= len(datas)
-    print(f"{count}/{len_}")
-    
-    if(data.get("wiki") != ""):
-      print("IT is processed")
-      continue  
+    print(f"{count}/{len(datas)}")
+
+    if data.get("wiki") != "":
+        print("IT is processed")
+        continue
+
     name_ = data["page"]
-    name = name_.replace(" ", "_")
-    names.append(name)
+    names.append(name_.replace(" ", "_"))
+
     try:
-      req = requests.get(data["wiki_link"])
-      soup = BeautifulSoup(req.text, "html.parser")
-      test = soup.find("div", class_="mw-content-container").get_text()
+        req = requests.get(data["wiki_link"], timeout=30)
+        soup = BeautifulSoup(req.text, "html.parser")
+        content = soup.find("div", class_="mw-content-container")
+        if content is None:
+            raise ValueError("Wikipedia content container not found")
 
-      if("does not have an article") in test:
-          print("DOES not exist")
-          continue
-      print(data["wiki_link"])
+        if "does not have an article" in content.get_text():
+            print("DOES not exist")
+            continue
 
-      divs = soup.find_all("div", class_="mw-body-content")
-      bio = str()
-      for d in divs:
-          bio += d.get_text()
-      data["wiki"] = bio
-      print(data)
-      with open("data_.json", "w", encoding="utf-8") as f:
-          json.dump(datas, f, indent=2)
+        print(data["wiki_link"])
+        bio = "".join(d.get_text() for d in soup.find_all("div", class_="mw-body-content"))
+        data["wiki"] = bio
+
+        with OUTPUT_FILE.open("w", encoding="utf-8") as f:
+            json.dump(datas, f, indent=2, ensure_ascii=False)
     except Exception as e:
         print(f"{e} with {name_}")
-        with open("log.txt", "a", encoding="utf-8") as log_file:
-            log_file.write(f"{e} with {name_} \n")
-        continue    
-      		
+        LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with LOG_FILE.open("a", encoding="utf-8") as log_file:
+            log_file.write(f"{e} with {name_}\n")
